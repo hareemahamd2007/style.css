@@ -1,0 +1,727 @@
+STEPFILY/
+│
+├── app.py
+├── ai.py
+├── image_generator.py
+├── model3d.py
+├── requirements.txt
+├── config.py
+│
+├── static/
+│   ├── css/
+│   │      style.css
+│   │
+│   ├── js/
+│   │      script.js
+│   │
+│   └── images/
+│
+├── templates/
+│      index.html
+│
+└── database/
+       history.db
+       flask
+openai
+requests
+python-dotenv
+Pillow
+pyttsx3
+speechrecognition
+flask_sqlalchemy
+pip install -r requirements.txt
+from flask import Flask, render_template, request, jsonify
+
+from ai import ask_ai
+from image_generator import generate_image
+from model3d import get_model
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/ask", methods=["POST"])
+def ask():
+
+    data = request.json
+
+    question = data["question"]
+
+    answer = ask_ai(question)
+
+    image = generate_image(question)
+
+    model = get_model(question)
+
+    return jsonify({
+        "answer": answer,
+        "image": image,
+        "model": model
+    })
+
+if __name__ == "__main__":
+    app.run(debug=True)
+    OPENAI_API_KEY="YOUR_API_KEY"
+    import openai
+from config import OPENAI_API_KEY
+
+openai.api_key = OPENAI_API_KEY
+
+def ask_ai(question):
+
+    response = openai.ChatCompletion.create(
+
+        model="gpt-3.5-turbo",
+
+        messages=[
+            {
+                "role":"user",
+                "content":question
+            }
+        ]
+
+    )
+
+    return response["choices"][0]["message"]["content"]
+    def generate_image(question):
+
+    text = question.lower()
+
+    if "plant" in text:
+        return "/static/images/plant.png"
+
+    if "heart" in text:
+        return "/static/images/heart.png"
+
+    if "brain" in text:
+        return "/static/images/brain.png"
+
+    return "/static/images/default.png"
+    def get_model(question):
+
+    text = question.lower()
+
+    if "plant" in text:
+        return "https://sketchfab.com/models/plant/embed"
+
+    if "heart" in text:
+        return "https://sketchfab.com/models/heart/embed"
+
+    if "brain" in text:
+        return "https://sketchfab.com/models/brain/embed"
+
+    return ""
+    <!DOCTYPE html>
+<html>
+
+<head>
+
+<title>STEPFILY AI</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🌿 STEPFILY AI</h1>
+
+<p>Ask Anything & Get AI Answers + Images + 3D Models</p>
+
+<div class="chat">
+
+<input
+type="text"
+id="question"
+placeholder="Ask something..."
+>
+
+<button onclick="askAI()">
+
+Ask
+
+</button>
+
+</div>
+
+<div id="answer"></div>
+
+<div class="image">
+
+<img id="image">
+
+</div>
+
+<div class="model">
+
+<iframe
+
+id="model"
+
+width="700"
+
+height="500"
+
+allowfullscreen
+
+></iframe>
+
+</div>
+
+</div>
+
+<script src="/static/js/script.js"></script>
+
+</body>
+
+</html>
+body{
+
+background:#111;
+
+color:white;
+
+font-family:Arial;
+
+text-align:center;
+
+}
+
+.container{
+
+width:90%;
+
+margin:auto;
+
+}
+
+input{
+
+width:70%;
+
+padding:15px;
+
+font-size:20px;
+
+border-radius:10px;
+
+}
+
+button{
+
+padding:15px;
+
+background:green;
+
+color:white;
+
+font-size:20px;
+
+border:none;
+
+border-radius:10px;
+
+cursor:pointer;
+
+}
+
+button:hover{
+
+background:#00aa00;
+
+}
+
+#answer{
+
+margin-top:30px;
+
+font-size:20px;
+
+line-height:35px;
+
+}
+
+img{
+
+width:400px;
+
+margin-top:20px;
+
+border-radius:15px;
+
+}
+
+iframe{
+
+margin-top:30px;
+
+border:none;
+
+border-radius:20px;
+
+}
+body{
+
+background:#111;
+
+color:white;
+
+font-family:Arial;
+
+text-align:center;
+
+}
+
+.container{
+
+width:90%;
+
+margin:auto;
+
+}
+
+input{
+
+width:70%;
+
+padding:15px;
+
+font-size:20px;
+
+border-radius:10px;
+
+}
+
+button{
+
+padding:15px;
+
+background:green;
+
+color:white;
+
+font-size:20px;
+
+border:none;
+
+border-radius:10px;
+
+cursor:pointer;
+
+}
+
+button:hover{
+
+background:#00aa00;
+
+}
+
+#answer{
+
+margin-top:30px;
+
+font-size:20px;
+
+line-height:35px;
+
+}
+
+img{
+
+width:400px;
+
+margin-top:20px;
+
+border-radius:15px;
+
+}
+
+iframe{
+
+margin-top:30px;
+
+border:none;
+
+border-radius:20px;
+
+}
+static/
+   js/
+   async function askAI(){
+
+let question=document.getElementById("question").value;
+
+const response=await fetch("/ask",{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+question:question
+
+})
+
+});
+
+const data=await response.json();
+
+document.getElementById("answer").innerHTML=data.answer;
+
+document.getElementById("image").src=data.image;
+
+document.getElementById("model").src=data.model;
+
+}
+python app.py
+http://127.0.0.1:5000
+import sqlite3
+
+DATABASE = "database/history.db"
+
+def connect():
+    conn = sqlite3.connect(DATABASE)
+    return conn
+
+def create_table():
+
+    conn = connect()
+
+    cur = conn.cursor()
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS history(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        question TEXT,
+        answer TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+def save_chat(question, answer):
+
+    conn = connect()
+
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO history(question,answer) VALUES(?,?)",
+        (question, answer)
+    )
+
+    conn.commit()
+    conn.close()
+
+def get_history():
+
+    conn = connect()
+
+    cur = conn.cursor()
+
+    cur.execute("SELECT question,answer FROM history ORDER BY id DESC")
+
+    data = cur.fetchall()
+
+    conn.close()
+
+    return data
+    from flask import Flask, render_template, request, jsonify
+
+from ai import ask_ai
+from image_generator import generate_image
+from model3d import get_model
+
+from database import *
+
+app = Flask(__name__)
+
+create_table()
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/history")
+def history():
+
+    return jsonify(get_history())
+
+@app.route("/ask", methods=["POST"])
+def ask():
+
+    data = request.json
+
+    question = data["question"]
+
+    answer = ask_ai(question)
+
+    save_chat(question, answer)
+
+    image = generate_image(question)
+
+    model = get_model(question)
+
+    return jsonify({
+        "answer": answer,
+        "image": image,
+        "model": model
+    })
+
+if __name__ == "__main__":
+    app.run(debug=True)
+    async function loadHistory(){
+
+const response = await fetch("/history");
+
+const data = await response.json();
+
+let html = "<h2>Previous Chats</h2>";
+
+data.forEach(chat=>{
+
+html += "<hr>";
+
+html += "<b>You:</b> " + chat[0] + "<br>";
+
+html += "<b>STEPFILY:</b> " + chat[1] + "<br>";
+
+});
+
+document.getElementById("answer").innerHTML += html;
+
+}
+
+window.onload = loadHistory;
+ollama pull llama3.2
+ollama run llama3.2
+pip install ollama
+import ollama
+
+def ask_ai(question):
+
+    response = ollama.chat(
+
+        model="llama3.2",
+
+        messages=[
+            {
+                "role":"user",
+                "content":question
+            }
+        ]
+
+    )
+
+    return response["message"]["content"]
+import ollama
+
+SYSTEM = """
+You are STEPFILY AI.
+
+Always answer in detail.
+
+Use headings.
+
+Use bullet points.
+
+Explain step by step.
+
+Give examples.
+
+If the topic is scientific, explain every part.
+"""
+
+def ask_ai(question):
+
+    response = ollama.chat(
+
+        model="llama3.2",
+
+        messages=[
+
+            {
+                "role":"system",
+                "content":SYSTEM
+            },
+
+            {
+                "role":"user",
+                "content":question
+            }
+
+        ]
+
+    )
+
+    return response["message"]["content"]
+    import ollama
+
+SYSTEM = """
+You are STEPFILY AI.
+
+Always answer in detail.
+
+Use headings.
+
+Use bullet points.
+
+Explain step by step.
+
+Give examples.
+
+If the topic is scientific, explain every part.
+"""
+
+def ask_ai(question):
+
+    response = ollama.chat(
+
+        model="llama3.2",
+
+        messages=[
+
+            {
+                "role":"system",
+                "content":SYSTEM
+            },
+
+            {
+                "role":"user",
+                "content":question
+            }
+
+        ]
+
+    )
+
+    return response["message"]["content"]
+    pip install markdown
+    import markdown
+    answer = ask_ai(question)
+    answer = markdown.markdown(ask_ai(question))
+    #answer{
+
+background:#222;
+
+padding:20px;
+
+border-radius:15px;
+
+margin-top:20px;
+
+text-align:left;
+
+}
+
+h2{
+
+color:#00ff99;
+
+}
+
+ul{
+
+margin-left:30px;
+
+}
+
+li{
+
+margin:10px;
+
+}
+pip install flask-socketio
+from flask import Flask, render_template
+from flask_socketio import SocketIO, emit
+import ollama
+
+app = Flask(__name__)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@socketio.on("ask")
+def ask(data):
+    question = data["question"]
+
+    stream = ollama.chat(
+        model="llama3.2",
+        messages=[{"role": "user", "content": question}],
+        stream=True
+    )
+
+    for chunk in stream:
+        emit("token", {
+            "text": chunk["message"]["content"]
+        })
+
+    emit("finished")
+
+if __name__ == "__main__":
+    socketio.run(app, debug=True)
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    const socket = io();
+
+socket.on("token", function(data) {
+
+    document.getElementById("answer").innerHTML += data.text;
+
+});
+
+socket.on("finished", function(){
+
+    console.log("Done");
+
+});
+
+function askAI(){
+
+    document.getElementById("answer").innerHTML = "";
+
+    socket.emit("ask", {
+
+        question: document.getElementById("question").value
+
+    });
+
+}
+pip install SpeechRecognition pyaudio
+<button onclick="startVoice()">🎤 Speak</button>
+function startVoice(){
+
+const recognition = new webkitSpeechRecognition();
+
+recognition.lang = "en-US";
+
+recognition.start();
+
+recognition.onresult = function(event){
+
+document.getElementById("question").value =
+event.results[0][0].transcript;
+
+};
+
+}
+pip install pyttsx3
+import pyttsx3
+
+engine = pyttsx3.init()
+
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+    
